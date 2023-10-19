@@ -36,22 +36,26 @@ export async function qr_login() {
 
         var handleMessage = function (event) {
           var origin = event.origin;
-          if (QRLoginObj.matchOrigin(origin)
-            && window.location.href.indexOf('/qrLogin') > -1
-          ) {
+          if (QRLoginObj.matchOrigin(origin) && window.location.href.indexOf('/qrLogin') > -1) {
             var loginTmpCode = event.data;
             window.location.href = `${gotoUrl}&tmp_code=${loginTmpCode}`;
           }
         };
+
         if (typeof window.addEventListener !== 'undefined') {
           window.addEventListener('message', handleMessage, false);
-        }
-        else if (typeof window.attachEvent !== 'undefined') {
+        } else if (typeof window.attachEvent !== 'undefined') {
           window.attachEvent('onmessage', handleMessage);
         }
+
         const { code, tokenInfo, qrUserInfo } = res.data;
         console.log(JSON.stringify(res))
-        code === 0 ? resolve({ tokenInfo, qrUserInfo }) || message.success(res.data.msg) : message.info(res.data.msg);
+        if (code === 0) {
+          resolve({ tokenInfo, qrUserInfo })
+          message.success(res.data.msg)
+        } else {
+          message.info(res.data.msg);
+        } 
       })
       .catch(err => {
         resolve(false)
